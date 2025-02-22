@@ -1,8 +1,11 @@
-from onedrive_organizer.database import initialize_db
+from onedrive_organizer.database import initialize_db, download_db_from_onedrive
 from onedrive_organizer.drive import sync_metadata_from_folder
 
 if __name__ == "__main__":
-    # Datenbank initialisieren
+    # Datenbank von OneDrive herunterladen (falls vorhanden)
+    download_db_from_onedrive()
+
+    # Datenbank initialisieren (falls sie noch nicht existiert)
     initialize_db()
 
     # Synchronisation starten
