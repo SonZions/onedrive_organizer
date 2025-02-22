@@ -40,11 +40,8 @@ def insert_or_update_file(file_metadata):
     conn.commit()
     conn.close()
 
-    # Nach jeder Änderung Datei in OneDrive hochladen
-    upload_db_to_onedrive()
-
 def upload_db_to_onedrive():
-    """ Lädt die SQLite-Datenbank nach OneDrive hoch """
+    """ Lädt die SQLite-Datenbank nach OneDrive hoch (NUR EINMAL) """
     headers = {
         "Authorization": f"Bearer {get_access_token()}",
         "Content-Type": "application/octet-stream"
