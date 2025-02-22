@@ -51,6 +51,25 @@ def insert_or_update_document_metadata(file_id, sender, category, document_date)
     conn.commit()
     conn.close()
 
+def insert_or_update_file(file_metadata):
+    """ Fügt eine Datei in die Datenbank ein oder aktualisiert sie """
+    conn = sqlite3.connect(LOCAL_DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO file_metadata (id, name, created_datetime, modified_datetime, size, mime_type, parent_folder)
+        VALUES (:id, :name, :created_datetime, :modified_datetime, :size, :mime_type, :parent_folder)
+        ON CONFLICT(id) DO UPDATE SET
+            name=excluded.name,
+            created_datetime=excluded.created_datetime,
+            modified_datetime=excluded.modified_datetime,
+            size=excluded.size,
+            mime_type=excluded.mime_type,
+            parent_folder=excluded.parent_folder
+    """, file_metadata)
+    conn.commit()
+    conn.close()
+
+
 def upload_db_to_onedrive():
     """ Lädt die SQLite-Datenbank nach OneDrive hoch """
     headers = {
