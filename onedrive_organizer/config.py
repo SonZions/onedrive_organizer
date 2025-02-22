@@ -16,3 +16,6 @@ ONEDRIVE_DB_PATH = "/files_metadata.db"  # Zielpfad in OneDrive
 
 # Token-Datei für Authentifizierung
 TOKEN_FILE = "token.json"
+
+# OpenAI API Key (für ChatGPT-Anfragen)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
