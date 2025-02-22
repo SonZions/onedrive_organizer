@@ -1,6 +1,7 @@
 import requests
 from onedrive_organizer.auth import get_access_token
 from onedrive_organizer.config import GRAPH_API_URL
+from onedrive_organizer.database import insert_or_update_file
 
 def get_folder_id(folder_name):
     """ Holt die ID eines OneDrive-Ordners anhand seines Namens """
@@ -13,8 +14,8 @@ def get_folder_id(folder_name):
                 return item["id"]
     return None
 
-def list_files_in_folder(folder_name):
-    """ Listet alle Dateien und ihr Erstellungsdatum in einem OneDrive-Ordner """
+def sync_metadata_from_folder(folder_name):
+    """ Ruft Metadaten aus einem bestimmten OneDrive-Ordner ab und speichert sie in SQLite """
     folder_id = get_folder_id(folder_name)
     if not folder_id:
         print(f"❌ Der Ordner '{folder_name}' wurde nicht gefunden.")
@@ -25,9 +26,21 @@ def list_files_in_folder(folder_name):
 
     if response.status_code == 200:
         files = response.json().get("value", [])
-        print(f"\n📂 Dateien in '{folder_name}':")
+        print(f"\n🔄 Synchronisiere Dateien aus '{folder_name}'...")
+
         for file in files:
-            created_time = file.get("createdDateTime", "Unbekannt")
-            print(f"- {file['name']} (Erstellt: {created_time})")
+            file_metadata = {
+                "id": file["id"],
+                "name": file["name"],
+                "created_datetime": file.get("createdDateTime", "Unbekannt"),
+                "modified_datetime": file.get("lastModifiedDateTime", "Unbekannt"),
+                "size": file.get("size", 0),
+                "mime_type": file.get("file", {}).get("mimeType", "Unbekannt"),
+                "parent_folder": folder_name
+            }
+            insert_or_update_file(file_metadata)
+
+        print(f"✅ Synchronisation für '{folder_name}' abgeschlossen.")
+
     else:
-        print("Fehler beim Abrufen der Dateien:", response.json())
+        print("❌ Fehler beim Abrufen der Dateien:", response.json())

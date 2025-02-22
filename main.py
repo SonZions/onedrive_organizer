@@ -1,5 +1,6 @@
-from onedrive_organizer.drive import list_files_in_folder
+from onedrive_organizer.sync_metadata import sync_metadata_from_folder
 
 if __name__ == "__main__":
-    folder_name = "From_BrotherDevice"
-    list_files_in_folder(folder_name)
+    folders = ["From_BrotherDevice", "Dokumente"]
+    for folder in folders:
+        sync_metadata_from_folder(folder)
