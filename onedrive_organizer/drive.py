@@ -44,3 +44,16 @@ def sync_metadata_from_folder(folder_name):
 
     else:
         print("❌ Fehler beim Abrufen der Dateien:", response.json())
+
+def download_file(file_id, local_path):
+    """ Lädt eine Datei aus OneDrive herunter """
+    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    response = requests.get(f"{GRAPH_API_URL}/items/{file_id}/content", headers=headers, stream=True)
+
+    if response.status_code == 200:
+        with open(local_path, "wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+        print(f"✅ Datei {local_path} erfolgreich heruntergeladen.")
+    else:
+        print(f"❌ Fehler beim Herunterladen von Datei {file_id}: {response.json()}")
