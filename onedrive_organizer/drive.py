@@ -1,3 +1,4 @@
+import os
 import requests
 from onedrive_organizer.auth import get_access_token
 from onedrive_organizer.config import GRAPH_API_URL
@@ -46,7 +47,12 @@ def sync_metadata_from_folder(folder_name):
         print("❌ Fehler beim Abrufen der Dateien:", response.json())
 
 def download_file(file_id, local_path):
-    """ Lädt eine Datei aus OneDrive herunter """
+    """ Lädt eine Datei aus OneDrive herunter und speichert sie lokal """
+    # Sicherstellen, dass das Verzeichnis existiert
+    local_dir = os.path.dirname(local_path)
+    if local_dir and not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+
     headers = {"Authorization": f"Bearer {get_access_token()}"}
     response = requests.get(f"{GRAPH_API_URL}/items/{file_id}/content", headers=headers, stream=True)
 
