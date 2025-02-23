@@ -39,7 +39,7 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
     }
     
     data = {
-        "model": "gpt-4-turbo",
+        "model": "gpt-4o-mini",
         "messages": [{"role": "system", "content": "Du bist ein intelligenter Dokumentenanalyse-Experte."},
                      {"role": "user", "content": prompt}],
         "temperature": 0.3
