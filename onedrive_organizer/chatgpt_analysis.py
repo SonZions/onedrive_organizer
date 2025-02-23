@@ -57,16 +57,16 @@ def extract_text_from_pdf(pdf_path):
 def analyze_document_with_chatgpt(file_id, pdf_text):
     """ Sendet den Text eines PDFs an ChatGPT und extrahiert relevante Metadaten """
     prompt = f"""
-    Analysiere das Dokument (den Text) und extrahiere die relevanten Metadaten:
-    
+    Analysiere das folgende Dokument und extrahiere die relevanten Metadaten:
+
     1. Absender (Firma ohne Firmierung)
-    2. Kategorie (Rentenversicherung, Unfallversicherung, Kontoauszug, Gebührenbescheid, Steuer, etc.)
+    2. Kategorie (z.B. Rentenversicherung, Unfallversicherung, Kontoauszug, Gebührenbescheid, Steuer)
     3. Dokumentdatum (falls vorhanden)
 
     Dokument:
     {pdf_text}
 
-    Gib die Antwort im JSON-Format aus:
+    Gib die Antwort **nur als JSON-Format** aus:
     {{
         "sender": "...",
         "category": "...",
@@ -78,9 +78,9 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
-    
+
     data = {
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o-mini",  # Falls gpt-4 nicht verfügbar ist, nutze "gpt-3.5-turbo"
         "messages": [{"role": "system", "content": "Du bist ein intelligenter Dokumentenanalyse-Experte."},
                      {"role": "user", "content": prompt}],
         "temperature": 0.3
@@ -91,19 +91,23 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
     if response.status_code == 200:
         try:
             response_data = response.json()
-            metadata = response_data["choices"][0]["message"]["content"]
-            try:
-                metadata = json.loads(metadata)  # Sicheres JSON-Parsing
-                insert_or_update_document_metadata(file_id, metadata["sender"], metadata["category"], metadata["document_date"])
-                print(f"✅ Metadaten für {file_id} gespeichert: {metadata}")
-            except json.JSONDecodeError:
-                print(f"❌ Fehler beim Parsen der API-Antwort für Datei {file_id}: {metadata}")
-            except KeyError:
-                print(f"❌ API-Antwort unvollständig für Datei {file_id}: {metadata}")
-            insert_or_update_document_metadata(file_id, metadata["sender"], metadata["category"], metadata["document_date"])
+            raw_content = response_data["choices"][0]["message"]["content"]
+
+            # **JSON sicher parsen**
+            metadata = json.loads(raw_content)  # Wandelt String in Dictionary um
+            
+            insert_or_update_document_metadata(
+                file_id,
+                metadata.get("sender", "Unbekannt"),
+                metadata.get("category", "Unbekannt"),
+                metadata.get("document_date", "Unbekannt")
+            )
+
             print(f"✅ Metadaten für {file_id} gespeichert: {metadata}")
-        except Exception as e:
-            print(f"❌ Fehler bei der Verarbeitung der ChatGPT-Antwort: {e}")
+        except json.JSONDecodeError as e:
+            print(f"❌ Fehler beim Parsen der API-Antwort für Datei {file_id}: {e}\nAntwort: {raw_content}")
+        except KeyError as e:
+            print(f"❌ API-Antwort unvollständig für Datei {file_id}: {metadata}")
     else:
         print(f"❌ Fehler bei der API-Anfrage: {response.json()}")
 
