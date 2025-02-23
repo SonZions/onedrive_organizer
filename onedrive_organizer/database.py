@@ -1,6 +1,9 @@
 import sqlite3
 import requests
 import os
+import time
+import os
+import inspect
 from onedrive_organizer.config import LOCAL_DB_FILE, ONEDRIVE_DB_PATH, GRAPH_API_URL
 from onedrive_organizer.auth import get_access_token
 
@@ -22,7 +25,7 @@ def initialize_db():
         )
     """)
 
-    # Neue Tabelle für ChatGPT-extrahierte Dokument-Metadaten
+    # Tabelle für ChatGPT-extrahierte Dokument-Metadaten
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS document_metadata (
             id TEXT PRIMARY KEY,
@@ -33,8 +36,33 @@ def initialize_db():
         )
     """)
 
+    # NEUE Log-Tabelle für Fehler, Warnungen & Prozessinfos
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS log_data (
+            id TEXT,
+            timestamp TEXT,
+            process TEXT,
+            message TEXT,
+            PRIMARY KEY (id, timestamp)
+        )
+    """)
+
     conn.commit()
     conn.close()
+
+def log_entry(file_id, message, process=None):
+    """ Speichert einen Log-Eintrag mit Timestamp (Hundertstelsekunden) """
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S.") + f"{int(time.time() * 100) % 100:02d}"
+    process_name = process or inspect.stack()[1].filename.split(os.sep)[-1]  # Modulname als Prozessname
+    conn = sqlite3.connect(LOCAL_DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO log_data (id, timestamp, process, message)
+        VALUES (?, ?, ?, ?)
+    """, (file_id, timestamp, process_name, message))
+    conn.commit()
+    conn.close()
+
 
 def insert_or_update_document_metadata(file_id, sender, category, document_date):
     """ Fügt extrahierte Metadaten eines Dokuments in die Datenbank ein oder aktualisiert sie """
