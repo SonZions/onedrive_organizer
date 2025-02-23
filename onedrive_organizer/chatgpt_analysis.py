@@ -1,26 +1,48 @@
 import requests
 import os
 import PyPDF2
+from pdfminer.high_level import extract_text
+import pytesseract
+from pdf2image import convert_from_path
 from onedrive_organizer.config import OPENAI_API_KEY
 from onedrive_organizer.database import insert_or_update_document_metadata
 import json
 
 CHATGPT_API_URL = "https://api.openai.com/v1/chat/completions"
 
+def extract_text_with_pdfminer(pdf_path):
+    """ Versucht, Text mit pdfminer.six zu extrahieren """
+    try:
+        text = extract_text(pdf_path)
+        return text.strip()
+    except Exception as e:
+        print(f"❌ Fehler beim Extrahieren von Text mit pdfminer.six aus {pdf_path}: {e}")
+        return ""
+
+
 def extract_text_from_pdf(pdf_path):
-    """ Extrahiert reinen Text aus einer PDF-Datei """
+    """ Versucht zuerst PyPDF2, dann pdfminer.six, dann OCR, um Text aus PDFs zu extrahieren """
+    text = ""
+
+    # 1️⃣ Versuche mit PyPDF2
     try:
         with open(pdf_path, "rb") as file:
             reader = PyPDF2.PdfReader(file)
             text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
-
-        if not text.strip():  # Prüfen, ob das PDF leer ist
-            print(f"⚠️ WARNUNG: Keine Texte im PDF {pdf_path} gefunden!")
-        
-        return text
     except Exception as e:
-        print(f"❌ Fehler beim Extrahieren von Text aus {pdf_path}: {e}")
-        return ""
+        print(f"❌ Fehler beim Extrahieren von Text mit PyPDF2 aus {pdf_path}: {e}")
+
+    # 2️⃣ Falls kein Text gefunden wurde, versuche pdfminer.six
+    if not text.strip():
+        print(f"⚠️ Kein Text mit PyPDF2 gefunden, versuche pdfminer.six für {pdf_path}...")
+        text = extract_text_with_pdfminer(pdf_path)
+
+    # 3️⃣ Falls immer noch kein Text gefunden wurde, verwende OCR
+    if not text.strip():
+        print(f"⚠️ Kein Text mit pdfminer.six gefunden, verwende OCR für {pdf_path}...")
+        text = ocr_text_from_pdf(pdf_path)
+
+    return text.strip()
 
 def analyze_document_with_chatgpt(file_id, pdf_text):
     """ Sendet den Text eines PDFs an ChatGPT und extrahiert relevante Metadaten """

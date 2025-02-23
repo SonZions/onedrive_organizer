@@ -1,0 +1,10 @@
+pdf_path = "temp/202412131338.pdf"
+
+text_pypdf2 = extract_text_from_pdf(pdf_path)
+print("🔹 PyPDF2 Text:", text_pypdf2[:500])  # Zeigt die ersten 500 Zeichen an
+
+text_pdfminer = extract_text_with_pdfminer(pdf_path)
+print("🔹 pdfminer.six Text:", text_pdfminer[:500])
+
+text_ocr = ocr_text_from_pdf(pdf_path)
+print("🔹 OCR Text:", text_ocr[:500])
