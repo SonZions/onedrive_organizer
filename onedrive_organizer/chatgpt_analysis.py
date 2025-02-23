@@ -3,6 +3,7 @@ import os
 import PyPDF2
 from onedrive_organizer.config import OPENAI_API_KEY
 from onedrive_organizer.database import insert_or_update_document_metadata
+import json
 
 CHATGPT_API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -51,7 +52,14 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
         try:
             response_data = response.json()
             metadata = response_data["choices"][0]["message"]["content"]
-            metadata = eval(metadata)  # Umwandeln des JSON-Strings in ein Dictionary
+            try:
+                metadata = json.loads(metadata)  # Sicheres JSON-Parsing
+                insert_or_update_document_metadata(file_id, metadata["sender"], metadata["category"], metadata["document_date"])
+                print(f"✅ Metadaten für {file_id} gespeichert: {metadata}")
+            except json.JSONDecodeError:
+                print(f"❌ Fehler beim Parsen der API-Antwort für Datei {file_id}: {metadata}")
+            except KeyError:
+                print(f"❌ API-Antwort unvollständig für Datei {file_id}: {metadata}")
             insert_or_update_document_metadata(file_id, metadata["sender"], metadata["category"], metadata["document_date"])
             print(f"✅ Metadaten für {file_id} gespeichert: {metadata}")
         except Exception as e:
