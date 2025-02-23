@@ -1,5 +1,6 @@
 import requests
 import os
+import re
 import PyPDF2
 from pdfminer.high_level import extract_text
 import pytesseract
@@ -54,6 +55,20 @@ def extract_text_from_pdf(pdf_path):
 
     return text.strip()
 
+def extract_json_from_response(response_text):
+    """ Extrahiert JSON aus einer OpenAI-Antwort und entfernt Erklärungen oder Markdown """
+    try:
+        # Falls die Antwort Markdown-Format enthält, entfernen
+        json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(0))  # Nur den JSON-Teil parsen
+        else:
+            print(f"❌ Kein gültiges JSON in der Antwort gefunden: {response_text[:500]}")
+            return None
+    except json.JSONDecodeError as e:
+        print(f"❌ Fehler beim JSON-Parsing: {e}\nAntwort: {response_text[:500]}")
+        return None
+
 def analyze_document_with_chatgpt(file_id, pdf_text):
     """ Sendet den Text eines PDFs an ChatGPT und extrahiert relevante Metadaten """
     prompt = f"""
@@ -62,11 +77,12 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
     1. Absender (Firma ohne Firmierung)
     2. Kategorie (z.B. Rentenversicherung, Unfallversicherung, Kontoauszug, Gebührenbescheid, Steuer)
     3. Dokumentdatum (falls vorhanden)
-
+    
     Dokument:
     {pdf_text}
 
-    Gib die Antwort **nur als JSON-Format** aus:
+    **Gib NUR die JSON-Antwort zurück, ohne Erklärungen oder zusätzlichen Text.**  
+    Format:
     {{
         "sender": "...",
         "category": "...",
@@ -89,25 +105,21 @@ def analyze_document_with_chatgpt(file_id, pdf_text):
     response = requests.post(CHATGPT_API_URL, headers=headers, json=data)
 
     if response.status_code == 200:
-        try:
-            response_data = response.json()
-            raw_content = response_data["choices"][0]["message"]["content"]
+        response_data = response.json()
+        raw_content = response_data["choices"][0]["message"]["content"].strip()
 
-            # **JSON sicher parsen**
-            metadata = json.loads(raw_content)  # Wandelt String in Dictionary um
-            
+        # JSON aus der OpenAI-Antwort extrahieren
+        metadata = extract_json_from_response(raw_content)
+
+        if metadata:
             insert_or_update_document_metadata(
                 file_id,
                 metadata.get("sender", "Unbekannt"),
                 metadata.get("category", "Unbekannt"),
                 metadata.get("document_date", "Unbekannt")
             )
-
             print(f"✅ Metadaten für {file_id} gespeichert: {metadata}")
-        except json.JSONDecodeError as e:
-            print(f"❌ Fehler beim Parsen der API-Antwort für Datei {file_id}: {e}\nAntwort: {raw_content}")
-        except KeyError as e:
-            print(f"❌ API-Antwort unvollständig für Datei {file_id}: {metadata}")
+        else:
+            print(f"❌ Konnte keine validen Metadaten für Datei {file_id} extrahieren.")
     else:
         print(f"❌ Fehler bei der API-Anfrage: {response.json()}")
-
