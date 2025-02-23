@@ -1,5 +1,5 @@
 import os
-import sqlite3  # Wichtig: SQLite importieren
+import sqlite3
 from onedrive_organizer.database import initialize_db, download_db_from_onedrive, upload_db_to_onedrive, log_entry
 from onedrive_organizer.drive import sync_metadata_from_folder, download_file
 from onedrive_organizer.chatgpt_analysis import extract_text_from_pdf, analyze_document_with_chatgpt
@@ -10,30 +10,24 @@ if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR)
 
 if __name__ == "__main__":
-    # Datenbank initialisieren (falls sie noch nicht existiert)
-    initialize_db()
-
-    # Erst danach Logging nutzen
+    initialize_db()  # Datenbank initialisieren (erst jetzt Log-Einträge möglich)
     log_entry("GLOBAL", "Starte Synchronisation...", "sync_metadata.py")
 
     # Datenbank von OneDrive herunterladen (falls vorhanden)
     download_db_from_onedrive()
 
-    # Datenbank initialisieren (falls sie noch nicht existiert)
-    initialize_db()
-
-    # Synchronisation starten
+    # Synchronisation starten (inkl. Unterordner)
     folders_to_sync = ["From_BrotherDevice", "Dokumente"]
     for folder in folders_to_sync:
-        log_entry("GLOBAL", f"Synchronisiere Dateien aus '{folder}'...", "sync_metadata.py")
-        sync_metadata_from_folder(folder)
+        log_entry("GLOBAL", f"📂 Synchronisiere Dateien aus '{folder}' und Unterordner...", "sync_metadata.py")
+        sync_metadata_from_folder(folder)  # Geht jetzt auch in Unterordner
         log_entry("GLOBAL", f"✅ Synchronisation für '{folder}' abgeschlossen.", "sync_metadata.py")
 
     # Verbindung zur Datenbank herstellen
     conn = sqlite3.connect("files_metadata.db")
     cursor = conn.cursor()
 
-    # Abrufen aller PDFs, die noch KEINE Metadaten haben
+    # Rekursive Suche nach PDFs ohne Metadaten
     cursor.execute("""
         SELECT f.id, f.name FROM file_metadata f
         LEFT JOIN document_metadata d ON f.id = d.id
@@ -42,11 +36,10 @@ if __name__ == "__main__":
     pdf_files = cursor.fetchall()
     conn.close()
 
-    # Falls es keine neuen PDFs gibt, beenden
     if not pdf_files:
-        log_entry("GLOBAL", "✅ Keine neuen PDFs zur Analyse. Alles auf dem aktuellen Stand.", "sync_metadata.py")
+        log_entry("GLOBAL", "✅ Keine neuen PDFs zur Analyse. Alles aktuell.", "sync_metadata.py")
     else:
-        log_entry("GLOBAL", f"🔍 {len(pdf_files)} neue PDFs gefunden – Senden an ChatGPT...", "sync_metadata.py")
+        log_entry("GLOBAL", f"🔍 {len(pdf_files)} neue PDFs gefunden – Starte Analyse...", "sync_metadata.py")
 
         for file_id, file_name in pdf_files:
             try:
