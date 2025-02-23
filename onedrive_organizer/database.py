@@ -8,7 +8,7 @@ from onedrive_organizer.config import LOCAL_DB_FILE, ONEDRIVE_DB_PATH, GRAPH_API
 from onedrive_organizer.auth import get_access_token
 
 def initialize_db():
-    """ Erstellt die SQLite-Datenbank und Tabellen, falls sie nicht existieren """
+    """ Erstellt die SQLite-Datenbank und alle benötigten Tabellen, falls sie nicht existieren """
     conn = sqlite3.connect(LOCAL_DB_FILE)
     cursor = conn.cursor()
 
@@ -36,7 +36,7 @@ def initialize_db():
         )
     """)
 
-    # NEUE Log-Tabelle für Fehler, Warnungen & Prozessinfos
+    # ✅ Sicherstellen, dass die Log-Tabelle existiert
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS log_data (
             id TEXT,

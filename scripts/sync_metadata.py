@@ -10,6 +10,10 @@ if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR)
 
 if __name__ == "__main__":
+    # Datenbank initialisieren (falls sie noch nicht existiert)
+    initialize_db()
+
+    # Erst danach Logging nutzen
     log_entry("GLOBAL", "Starte Synchronisation...", "sync_metadata.py")
 
     # Datenbank von OneDrive herunterladen (falls vorhanden)
