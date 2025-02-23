@@ -10,6 +10,16 @@ import json
 
 CHATGPT_API_URL = "https://api.openai.com/v1/chat/completions"
 
+def ocr_text_from_pdf(pdf_path):
+    """ Nutzt OCR (Tesseract), um Text aus einem gescannten PDF zu extrahieren """
+    try:
+        images = convert_from_path(pdf_path)  # Konvertiert PDF-Seiten in Bilder
+        text = "\n".join([pytesseract.image_to_string(img) for img in images])
+        return text.strip()
+    except Exception as e:
+        print(f"❌ Fehler beim OCR-Scannen von {pdf_path}: {e}")
+        return ""
+
 def extract_text_with_pdfminer(pdf_path):
     """ Versucht, Text mit pdfminer.six zu extrahieren """
     try:
