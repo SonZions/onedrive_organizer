@@ -9,15 +9,23 @@ CHATGPT_API_URL = "https://api.openai.com/v1/chat/completions"
 
 def extract_text_from_pdf(pdf_path):
     """ Extrahiert reinen Text aus einer PDF-Datei """
-    with open(pdf_path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
-        text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
-    return text
+    try:
+        with open(pdf_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+
+        if not text.strip():  # Prüfen, ob das PDF leer ist
+            print(f"⚠️ WARNUNG: Keine Texte im PDF {pdf_path} gefunden!")
+        
+        return text
+    except Exception as e:
+        print(f"❌ Fehler beim Extrahieren von Text aus {pdf_path}: {e}")
+        return ""
 
 def analyze_document_with_chatgpt(file_id, pdf_text):
     """ Sendet den Text eines PDFs an ChatGPT und extrahiert relevante Metadaten """
     prompt = f"""
-    Analysiere das folgende Dokument und extrahiere die relevanten Metadaten:
+    Analysiere das Dokument (den Text) und extrahiere die relevanten Metadaten:
     
     1. Absender (Firma ohne Firmierung)
     2. Kategorie (Rentenversicherung, Unfallversicherung, Kontoauszug, Gebührenbescheid, Steuer, etc.)
