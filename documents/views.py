@@ -8,6 +8,7 @@ from .models import FileMetadata, DocumentMetadata
 from onedrive_organizer.drive import download_file as onedrive_download_file
 from onedrive_organizer.chatgpt_analysis import analyze_document_with_chatgpt
 from onedrive_organizer.database import insert_or_update_document_metadata
+from onedrive_organizer.config import DB_PATH
 
 # Home: Zeigt alle Dateien & Metadaten als interaktiven Baum
 def index(request):
@@ -53,24 +54,8 @@ def download_file(request, file_id):
     
     return FileResponse(open(local_file_path, "rb"), as_attachment=True, filename=file.name)
 
-
-    def __str__(self):
-        return f"{self.file.name} - {self.category}"
-
-# Django URL-Konfiguration
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    path("", views.index, name="index"),
-    path("missing-metadata/", views.missing_metadata, name="missing_metadata"),
-    path("analyze/<str:file_id>/", views.analyze_file, name="analyze_file"),
-    path("download/<str:file_id>/", views.download_file, name="download_file"),
-]
-
-# Datenbankverbindung für files_metadata.db sicherstellen
+# Datenbankverbindung für files_metadata.db sicherstellen
 import sqlite3
-DB_PATH = "files_metadata.db"
 
 def get_db_connection():
-    return sqlite3.connect(DB_ PATH)
+    return sqlite3.connect(DB_PATH)
