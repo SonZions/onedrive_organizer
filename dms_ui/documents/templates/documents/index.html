@@ -1,0 +1,19 @@
+{% for file in files %}
+    <div>
+        <strong>{{ file.name }}</strong> ({{ file.size }} KB) - 
+        <a href="{% url 'download_file' file.id %}">Download</a>
+        {% if not file.documentmetadata %}
+            <button onclick="startAnalysis('{{ file.id }}')">Metadaten analysieren</button>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<script>
+    function startAnalysis(fileId) {
+        fetch(`/analyze/${fileId}/`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Fehler: ' + error));
+    }
+</script>
+
