@@ -70,7 +70,7 @@ urlpatterns = [
 
 # Datenbankverbindung für files_metadata.db sicherstellen
 import sqlite3
-DB_PATH = os.path.join(settings.BASE_DIR, "files_metadata.db")
+DB_PATH = "files_metadata.db"
 
 def get_db_connection():
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(DB_ PATH)
