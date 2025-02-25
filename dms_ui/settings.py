@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'dms_ui.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-from onedrive_organizer.config import DB_PATH
+from onedrive_organizer.config import LOCAL_DB_FILE
 
 
 DATABASES = {
