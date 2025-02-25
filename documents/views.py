@@ -12,7 +12,7 @@ from django.shortcuts import render
 
 
 def index(request):
-    """ Holt die Dateien aus der Datenbank und organisiert sie für die Baumstruktur """
+      # SQL-Abfrage, um die Daten aus `file_metadata` und `document_metadata` zusammenzuführen
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT f.id, f.name, f.created_datetime, f.size, f.mime_type, 
@@ -22,40 +22,29 @@ def index(request):
         """)
         rows = cursor.fetchall()
 
-    # Daten in ein Dictionary umwandeln
-    files = [
-        {
-            "id": row[0],
-            "name": row[1],
-            "created_datetime": row[2],
-            "size": row[3],
-            "mime_type": row[4],
-            "sender": row[5] if row[5] else "Unbekannt",
-            "category": row[6] if row[6] else "Unbekannt",
-            "document_date": row[7] if row[7] else "Unbekannt",
-        }
-        for row in rows
-    ]
-    
-    tree_structure = {}
-    for file in files:
-        category = file.documentmetadata.category if file.documentmetadata else "Unbekannt"
-        sender = file.documentmetadata.sender if file.documentmetadata else "Unbekannt"
-        year = file.created_datetime.year
+    # Struktur für den Baum initialisieren
+    tree_structure = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
-        if category not in tree_structure:
-            tree_structure[category] = {}
+    # Daten in die Baumstruktur einsortieren
+    for row in rows:
+        file_id, name, created_datetime, size, mime_type, sender, category, document_date = row
+        
+        category = category or "Unbekannt"
+        sender = sender or "Unbekannt"
+        
+        # Jahr aus `document_date` extrahieren, wenn möglich
+        year = "Unbekannt"
+        if document_date and len(document_date) >= 4:
+            year = document_date[:4]  # Die ersten 4 Zeichen als Jahr nehmen
 
-        if sender not in tree_structure[category]:
-            tree_structure[category][sender] = {}
+        # Datei zur Baumstruktur hinzufügen
+        tree_structure[category][sender][year].append({
+            "id": file_id,
+            "name": name,
+            "size": size
+        })
 
-        if year not in tree_structure[category][sender]:
-            tree_structure[category][sender][year] = []
-
-        tree_structure[category][sender][year].append(file)
-
-    print(json.dumps(tree_structure, indent=4, default=str))
-    return render(request, "documents/index.html", {"tree_structure": tree_structure})
+    return render(request, "index.html", {"tree_structure": dict(tree_structure)})
 
 
 def download(request, file_id):
