@@ -8,7 +8,7 @@ from .models import FileMetadata, DocumentMetadata
 from onedrive_organizer.drive import download_file as onedrive_download_file
 from onedrive_organizer.chatgpt_analysis import analyze_document_with_chatgpt
 from onedrive_organizer.database import insert_or_update_document_metadata
-from onedrive_organizer.config import DB_PATH
+from onedrive_organizer.config import LOCAL_DB_FILE
 
 # Home: Zeigt alle Dateien & Metadaten als interaktiven Baum
 def index(request):
