@@ -13,7 +13,7 @@ from onedrive_organizer.config import LOCAL_DB_FILE
 # Home: Zeigt alle Dateien & Metadaten als interaktiven Baum
 def index(request):
     files = FileMetadata.objects.all()
-    return render(request, "index.html", {"files": files})
+    return render(request, "documents/index.html", {"files": files})
 
 # Dateien ohne Metadaten anzeigen
 def missing_metadata(request):
