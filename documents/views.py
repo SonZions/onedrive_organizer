@@ -8,7 +8,7 @@ import json
 
 def index(request):
     """ Holt die Dateien aus der Datenbank und organisiert sie für die Baumstruktur """
-    files = FileMetadata.objects.all().select_related('documentmetadata')
+    files = FileMetadata.objects.prefetch_related("documentmetadata")
 
     tree_structure = {}
     for file in files:
