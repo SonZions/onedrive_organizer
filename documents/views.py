@@ -58,4 +58,4 @@ def download_file(request, file_id):
 import sqlite3
 
 def get_db_connection():
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(LOCAL_DB_FILE)
