@@ -1,8 +1,0 @@
-<h2>Fehlende Metadaten</h2>
-{% for file in files %}
-    <div>
-        <strong>{{ file.name }}</strong> ({{ file.size }} KB) - 
-        <button onclick="startAnalysis('{{ file.id }}')">Metadaten analysieren</button>
-    </div>
-{% endfor %}
-
