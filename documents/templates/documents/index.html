@@ -1,19 +1,54 @@
-{% for file in files %}
-    <div>
-        <strong>{{ file.name }}</strong> ({{ file.size }} KB) - 
-        <a href="{% url 'download_file' file.id %}">Download</a>
-        {% if not file.documentmetadata %}
-            <button onclick="startAnalysis('{{ file.id }}')">Metadaten analysieren</button>
-        {% endif %}
-    </div>
-{% endfor %}
+  <!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMS UI</title>
+    <style>
+        .tree { list-style-type: none; padding-left: 20px; }
+        .folder { cursor: pointer; font-weight: bold; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Dokumentenverwaltung</h1>
+    <ul class="tree">
+        {% for category, senders in tree_structure.items %}
+            <li>
+                <span class="folder" onclick="toggle(this)">{{ category }}</span>
+                <ul class="hidden">
+                    {% for sender, years in senders.items %}
+                        <li>
+                            <span class="folder" onclick="toggle(this)">{{ sender }}</span>
+                            <ul class="hidden">
+                                {% for year, files in years.items %}
+                                    <li>
+                                        <span class="folder" onclick="toggle(this)">{{ year }}</span>
+                                        <ul class="hidden">
+                                            {% for file in files %}
+                                                <li>
+                                                    <a href="{% url 'download' file.id %}">{{ file.name }}</a>
+                                                    ({{ file.size }} KB)
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 
-<script>
-    function startAnalysis(fileId) {
-        fetch(`/analyze/${fileId}/`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => alert('Fehler: ' + error));
-    }
-</script>
-
+    <script>
+        function toggle(element) {
+            let childList = element.nextElementSibling;
+            if (childList) {
+                childList.classList.toggle("hidden");
+            }
+        }
+    </script>
+</body>
+</html>
