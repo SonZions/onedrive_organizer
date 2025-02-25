@@ -4,6 +4,7 @@ from .models import FileMetadata, DocumentMetadata
 import os
 from django.conf import settings
 from django.http import FileResponse
+import json
 
 def index(request):
     """ Holt die Dateien aus der Datenbank und organisiert sie für die Baumstruktur """
@@ -26,6 +27,7 @@ def index(request):
 
         tree_structure[category][sender][year].append(file)
 
+    print(json.dumps(tree_structure, indent=4, default=str))
     return render(request, "documents/index.html", {"tree_structure": tree_structure})
 
 
