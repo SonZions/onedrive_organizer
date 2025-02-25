@@ -90,7 +90,7 @@ from onedrive_organizer.config import DB_PATH
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(DB_PATH),
+        'NAME': str(LOCAL_DB_FILE),
     }
 }
 
