@@ -44,7 +44,7 @@ def index(request):
             "size": size
         })
 
-    return render(request, "index.html", {"tree_structure": dict(tree_structure)})
+    return render(request, "documents/index.html", {"tree_structure": dict(tree_structure)})
 
 
 def download(request, file_id):
