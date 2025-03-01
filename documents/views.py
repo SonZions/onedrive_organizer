@@ -29,7 +29,6 @@ def index(request):
             FROM file_metadata f
             INNER JOIN document_metadata d ON f.id = d.id
             ORDER BY d.category
-            LIMIT 10
         """)
         rows = cursor.fetchall()
 
