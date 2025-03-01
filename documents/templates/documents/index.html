@@ -12,11 +12,10 @@
 </head>
 <body>
     <h1>Dokumentenverwaltung</h1>
-    <pre>{{ tree_structure|safe }}</pre>
     <ul class="tree">
         {% for category, senders in tree_structure.items %}
             <li>
-                <span class="folder" onclick="toggle(this)">{{ category }}{{senders.items}}</span>
+                <span class="folder" onclick="toggle(this)">{{ category }}</span>
                 <ul class="hidden">
                     {% for sender, years in senders.items %}
                         <li>
