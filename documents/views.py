@@ -19,6 +19,7 @@ def index(request):
             FROM file_metadata f
             INNER JOIN document_metadata d ON f.id = d.id
             ORDER BY d.category
+            LIMIT 10
         """)
         rows = cursor.fetchall()
 
@@ -44,6 +45,16 @@ def index(request):
             "size": size
         })
         print(tree_structure)
+
+        print("===== TREE STRUCTURE DEBUG =====")
+        for category, senders in tree_structure.items():
+            print(f"Kategorie: {category}")
+            for sender, years in senders.items():
+                print(f"  Sender: {sender}")
+                for year, files in years.items():
+                    print(f"    Jahr: {year} - {len(files)} Dateien")
+        print("===== END DEBUG =====")
+
 
     return render(request, "documents/index.html", {"tree_structure": dict(tree_structure)})
 
