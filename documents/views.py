@@ -43,6 +43,7 @@ def index(request):
             "name": name,
             "size": size
         })
+        print(tree_structure)
 
     return render(request, "documents/index.html", {"tree_structure": dict(tree_structure)})
 

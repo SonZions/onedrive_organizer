@@ -13,15 +13,15 @@
 <body>
     <h1>Dokumentenverwaltung</h1>
     <ul class="tree">
-        {% for category, senders in tree_structure.items %}
+        {% for category, sender in tree_structure.items %}
             <li>
                 <span class="folder" onclick="toggle(this)">{{ category }}</span>
                 <ul class="hidden">
-                    {% for sender, years in senders.items %}
+                    {% for sender, years in sender.items %}
                         <li>
                             <span class="folder" onclick="toggle(this)">{{ sender }}</span>
                             <ul class="hidden">
-                                {% for year, files in years.items %}
+                                {% for year, files in year.items %}
                                     <li>
                                         <span class="folder" onclick="toggle(this)">{{ year }}</span>
                                         <ul class="hidden">
