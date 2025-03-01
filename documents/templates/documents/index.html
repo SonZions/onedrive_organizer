@@ -12,7 +12,7 @@
 </head>
 <body>
     <h1>Dokumentenverwaltung</h1>
-
+    <pre>{{ tree_structure|safe }}</pre>
     <ul class="tree">
         {% for category, senders in tree_structure.items %}
             <li>

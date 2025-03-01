@@ -59,6 +59,7 @@ def index(request):
     return render(request, "documents/index.html", {"tree_structure": dict(tree_structure)})
 
 
+
 def download(request, file_id):
     """ Lädt die Datei aus OneDrive herunter und gibt sie zum Download zurück """
     file = get_object_or_404(FileMetadata, id=file_id)
