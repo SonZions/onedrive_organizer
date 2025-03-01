@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -11,10 +11,8 @@
     </style>
 </head>
 <body>
-    <pre>{{ tree_structure }}</pre>
-
-
     <h1>Dokumentenverwaltung</h1>
+
     <ul class="tree">
         {% for category, senders in tree_structure.items %}
             <li>
@@ -30,32 +28,32 @@
                                         <ul class="hidden">
                                             {% for file in files %}
                                                 <li>
-                                                    <a href="{% url 'download' file.id %}">{{ file.name }}</a>
+                                                    <a href="{% url 'download_file' file.id %}">{{ file.name }}</a>
                                                     ({{ file.size }} KB)
                                                 </li>
                                             {% endfor %}
                                         </ul>
                                     </li>
+                                {% empty %}
+                                    <li><em>Keine Dateien gefunden</em></li>
                                 {% endfor %}
                             </ul>
                         </li>
+                    {% empty %}
+                        <li><em>Kein Absender gefunden</em></li>
                     {% endfor %}
                 </ul>
             </li>
+        {% empty %}
+            <li><em>Keine Kategorien gefunden</em></li>
         {% endfor %}
     </ul>
 
     <script>
-        alert("JavaScript läuft!");
         function toggle(element) {
-            alert("Klick erkannt!");  // Debug-Meldung
             let childList = element.nextElementSibling;
             if (childList) {
-                alert("Liste gefunden!");
                 childList.classList.toggle("hidden");
-                alert("Neue Klassen: " + childList.className);
-            } else {
-                alert("Keine Liste gefunden!");
             }
         }
     </script>
