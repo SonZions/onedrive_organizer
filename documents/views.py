@@ -53,17 +53,6 @@ def index(request):
             "name": name,
             "size": size
         })
-        print(tree_structure)
-
-        print("===== TREE STRUCTURE DEBUG =====")
-        for category, senders in tree_structure.items():
-            print(f"Kategorie: {category}")
-            for sender, years in senders.items():
-                print(f"  Sender: {sender}")
-                for year, files in years.items():
-                    print(f"    Jahr: {year} - {len(files)} Dateien")
-        print("===== END DEBUG =====")
-
 
     # Rekursive Umwandlung aller defaultdicts in normale Dictionaries
     tree_structure = recursive_defaultdict_to_dict(tree_structure)
