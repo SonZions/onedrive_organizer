@@ -3,10 +3,9 @@ from onedrive_organizer.drive import download_file as onedrive_download_file
 from .models import FileMetadata, DocumentMetadata
 import os
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 import json
 from django.db import connection
-from django.shortcuts import render
 from collections import defaultdict
 
 
@@ -57,3 +56,8 @@ def download(request, file_id):
         onedrive_download_file(file_id, local_path)
 
     return FileResponse(open(local_path, "rb"), as_attachment=True, filename=file.name)
+
+
+def debug_tree(request):
+    from .views import build_tree_structure  # Importiere die Tree-Funktion
+    return HttpResponse(json.dumps(build_tree_structure(), indent=4), content_type="application/json")

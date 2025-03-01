@@ -43,10 +43,15 @@
     </ul>
 
     <script>
+        alert("JavaScript läuft!");
         function toggle(element) {
+            alert("Klick erkannt!");  // Debug-Meldung
             let childList = element.nextElementSibling;
             if (childList) {
+                alert("Liste gefunden!");
                 childList.classList.toggle("hidden");
+            } else {
+                alert("Keine Liste gefunden!");
             }
         }
     </script>
