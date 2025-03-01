@@ -28,7 +28,7 @@
                                         <ul class="hidden">
                                             {% for file in files %}
                                                 <li>
-                                                    <a href="{% url 'download_file' file.id %}">{{ file.name }}</a>
+                                                    <a href="{% url 'download' file.id %}">{{ file.name }}</a>
                                                     ({{ file.size }} KB)
                                                 </li>
                                             {% endfor %}
