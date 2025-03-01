@@ -17,7 +17,8 @@ def index(request):
             SELECT f.id, f.name, f.created_datetime, f.size, f.mime_type, 
                    d.sender, d.category, d.document_date
             FROM file_metadata f
-            LEFT JOIN document_metadata d ON f.id = d.id
+            INNER JOIN document_metadata d ON f.id = d.id
+            ORDER BY d.category
         """)
         rows = cursor.fetchall()
 
