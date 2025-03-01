@@ -11,17 +11,20 @@
     </style>
 </head>
 <body>
+    <pre>{{ tree_structure }}</pre>
+
+
     <h1>Dokumentenverwaltung</h1>
     <ul class="tree">
-        {% for category, sender in tree_structure.items %}
+        {% for category, senders in tree_structure.items %}
             <li>
                 <span class="folder" onclick="toggle(this)">{{ category }}</span>
                 <ul class="hidden">
-                    {% for sender, years in sender.items %}
+                    {% for sender, years in senders.items %}
                         <li>
                             <span class="folder" onclick="toggle(this)">{{ sender }}</span>
                             <ul class="hidden">
-                                {% for year, files in year.items %}
+                                {% for year, files in years.items %}
                                     <li>
                                         <span class="folder" onclick="toggle(this)">{{ year }}</span>
                                         <ul class="hidden">
