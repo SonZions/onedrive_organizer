@@ -16,7 +16,7 @@
     <ul class="tree">
         {% for category, senders in tree_structure.items %}
             <li>
-                <span class="folder" onclick="toggle(this)">{{ category }}</span>
+                <span class="folder" onclick="toggle(this)">{{ category }}{{senders.items}}</span>
                 <ul class="hidden">
                     {% for sender, years in senders.items %}
                         <li>
